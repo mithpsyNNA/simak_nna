@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMAK NNA — Login</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .login-wrap {
+    background:#fff; border-radius:20px; overflow:hidden;
+    display:flex; width:880px; max-width:95vw; box-shadow:0 25px 60px rgba(0,0,0,0.4);
+  }
+  .login-left {
+    flex:1; background:linear-gradient(160deg,#1a6b4a,#27ae60);
+    padding:50px 40px; display:flex; flex-direction:column; justify-content:center; color:#fff;
+  }
+  .login-left h1 { font-size:2rem; font-weight:800; margin-bottom:8px; }
+  .login-left p  { opacity:.85; font-size:.95rem; line-height:1.6; }
+  .badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+  .badge { background:rgba(255,255,255,.2); border-radius:20px; padding:5px 14px; font-size:.8rem; }
+  .login-right { flex:1; padding:50px 40px; display:flex; flex-direction:column; justify-content:center; }
+  .login-right h2 { font-size:1.5rem; font-weight:700; color:#1a6b4a; margin-bottom:6px; }
+  .login-right p.sub { color:#666; font-size:.9rem; margin-bottom:28px; }
+  .form-group { margin-bottom:18px; }
+  label { display:block; font-size:.85rem; font-weight:600; color:#333; margin-bottom:6px; }
+  input { width:100%; padding:12px 16px; border:2px solid #e0e0e0; border-radius:10px;
+          font-size:.95rem; transition:.2s; outline:none; }
+  input:focus { border-color:#1a6b4a; }
+  .btn-login { width:100%; padding:13px; background:linear-gradient(135deg,#1a6b4a,#27ae60);
+               color:#fff; border:none; border-radius:10px; font-size:1rem; font-weight:700;
+               cursor:pointer; transition:.2s; margin-top:6px; }
+  .btn-login:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(26,107,74,.4); }
+  .error { color:#e74c3c; font-size:.85rem; margin-top:10px; display:none; }
+  .demo-accounts { margin-top:20px; padding:16px; background:#f8f9fa; border-radius:10px; }
+  .demo-accounts p { font-size:.8rem; font-weight:700; color:#555; margin-bottom:8px; }
+  .demo-accounts table { width:100%; font-size:.78rem; color:#444; }
+  .demo-accounts td { padding:3px 6px; }
+  .demo-accounts td:first-child { font-weight:600; color:#1a6b4a; }
+  @media(max-width:600px){ .login-left{display:none} .login-right{padding:36px 28px} }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-left">
+    <div style="font-size:3rem;margin-bottom:16px">🏫</div>
+    <h1>SIMAK NNA</h1>
+    <p>Sistem Informasi Manajemen Akademik<br>Yayasan Nurul Nugraha Aulia</p>
+    <p style="margin-top:12px;opacity:.7;font-size:.85rem">Pematangsiantar · 2026</p>
+    <div class="badges">
+      <span class="badge">Absensi</span>
+      <span class="badge">Nilai & Rapor</span>
+      <span class="badge">Jadwal</span>
+      <span class="badge">Penggajian</span>
+      <span class="badge">Keuangan</span>
+      <span class="badge">KPI Guru</span>
+      <span class="badge">PPDB</span>
+      <span class="badge">SDM</span>
+    </div>
+  </div>
+  <div class="login-right">
+    <h2>Selamat Datang</h2>
+    <p class="sub">Masuk untuk mengakses sistem</p>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Masukkan username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Masukkan password" autocomplete="current-password">
+    </div>
+    <button class="btn-login" id="btnLogin">Masuk →</button>
+    <div class="error" id="errMsg"></div>
+    <div class="demo-accounts">
+      <p>🔑 Akun Demo:</p>
+      <table>
+        <tr><td>admin</td><td>admin123</td><td>Administrator</td></tr>
+        <tr><td>kepsek</td><td>kepsek123</td><td>Kepala Sekolah</td></tr>
+        <tr><td>neni</td><td>guru123</td><td>Guru / Wakasek</td></tr>
+        <tr><td>yayasan</td><td>yayasan123</td><td>Pengurus Yayasan</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+const API = "";
+async function login() {
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  const err = document.getElementById("errMsg");
+  if (!u || !p) { err.style.display="block"; err.textContent="Isi username dan password."; return; }
+  try {
+    const r = await fetch(API+"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})});
+    const d = await r.json();
+    if (!r.ok) { err.style.display="block"; err.textContent=d.error; return; }
+    localStorage.setItem("simak_token", d.token);
+    localStorage.setItem("simak_role", d.role);
+    localStorage.setItem("simak_nama", d.nama);
+    localStorage.setItem("simak_guru_id", d.guru_id || "");
+    localStorage.setItem("simak_siswa_id", d.siswa_id || "");
+    localStorage.setItem("simak_siswa_kelas_id", d.siswa_kelas_id || "");
+    if (d.role === "siswa") {
+      window.location.href = "/siswa-portal";
+    } else {
+      window.location.href = "/dashboard.html";
+    }
+  } catch(e) { err.style.display="block"; err.textContent="Gagal terhubung ke server."; }
+}
+document.getElementById("btnLogin").addEventListener("click", login);
+document.getElementById("password").addEventListener("keydown", e => e.key==="Enter" && login());
+document.getElementById("username").addEventListener("keydown", e => e.key==="Enter" && document.getElementById("password").focus());
+</script>
+</body>
+</html>
